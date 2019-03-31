@@ -115,13 +115,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Logic.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="UI.cpp" />
+    <ClCompile Include="Game_Data.cpp" />
+    <ClCompile Include="Game_Logic.cpp" />
+    <ClCompile Include="Game_Main.cpp" />
+    <ClCompile Include="Game_UI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Data.h" />
     <ClInclude Include="Logic.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="run.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
