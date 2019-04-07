@@ -1,11 +1,11 @@
 #pragma once
-#ifndef RUN_H
-#define RUN_H
+#ifndef MAIN_H
+#define MAIN_H
 #include <graphics.h>
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
 #include "UI.h"
-#include "Logic.h"
+#include "logic.h"
 
 #endif

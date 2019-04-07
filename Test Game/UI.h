@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef UI_H
 #define UI_H
 #define WIDTH 800
@@ -7,67 +7,70 @@
 #define GAME_HEIGHT 450
 
 #define ANIMAL_HEIGHT 120
-#define ANIMAL_WIDTH 120
+#define ANIMAL_WIDTH 160
 #define LINE_ONE 130
 #define LINE_TWO 290
 
 #define BULLET_GAP 163
-#define BULLET_HEIGHT 130
+#define BULLET_HEIGHT 117
+
+#define BUTTON_GAP 100
+
+#define SUCCESS 0;
+#define FAIL -1;
 
 #include <graphics.h>
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct animal{
-	double x;
-	double y;
-	double v;
+	int x;
+	int y;
+	float v;
 	int typeNumber;
-	struct animal *next;
+//	struct animal *next;
+	IMAGE animal;
+	IMAGE backplace;
 }ANIMAL;
 
 typedef struct question{
-	double x;
-	double y;
 	int first;
 	int second;
 	char sign;
 	bool choice;
 	struct question *next;
-	ANIMAL animal;
+	ANIMAL *animal;
 }QUESTION;
 
 typedef struct bullet{
-	double x;
-	double y;
+	int x;
+	int y;
 	int value;
 	struct bullet *next;
 }BULLET;
 
-typedef struct game {
-	int score = 0;
+typedef struct background {
 	int indexOfBackground;
+	IMAGE background[5];
+}BKGD;
+
+
+typedef struct user {
+	int score;
 	char username[20];
-	MOUSEMSG mouse;
-	IMAGE animals[10];
-	IMAGE background[4];
-	IMAGE button[20];
-	IMAGE bul[10];
-	QUESTION *question;
-	BULLET *bullet;
-}GAME;
+}USER;
 
-typedef struct {
-	IMAGE bp0, bp2, bp3, bp4, bp5;
-	IMAGE bp6, bp7, bp8, bp9, bp10;
-}BACKPLACE;
-
-void setBackground(GAME &game);
-int displayBackground(GAME game);
-GAME *displayWindow(GAME &game);
-void displayButton(GAME game);
-void initButton(GAME &game);
-void displayBullet();
-void displayScore(GAME game);
+int setBackground(BKGD *pointer);
+int displayBackground(BKGD *bk);
+int displayWindow(USER *pointer);
+int displayButton(IMAGE *button, BKGD *bk, USER *head);
+int initButton(IMAGE *head);
+int displayBullet();
+int displayScore(USER *user);
+void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r);
+void imageLoading(IMAGE *animal, IMAGE *animal_r);
+int displayBulletNumber(BULLET *head);
+int displayQuestion(QUESTION *head);
 #endif

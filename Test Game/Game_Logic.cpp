@@ -1,207 +1,283 @@
-#include "UI.h"
+ï»¿#include "UI.h"
 #include "Logic.h"
 
-/* Íê³É¶¯Îï¿é&ÊýÑ§ÌâµÄ´´½¨£¬´æÈëÁ´±í£¬Êä³ö£¬Ñ­»·ÒÆ¶¯*/
+BULLET *initBullet() {
+	BULLET *p;
+	BULLET *head = NULL, *tail = NULL;
+	int value[20];
+	int repeatOrNot = 0;
+	int repeat = 0;
+	for (int i = 0; i < 4; i++) {
+		p = (BULLET*)malloc(sizeof(*p));
+		p->y = 460;
+		p->x = BULLET_GAP * i;
+		while (repeat == 0) {
+			value[i] = rand() % 21;
+			for (int index = 0; index < i; index++) {
+				if (value[i] == value[index]) {
+					repeatOrNot++;
+				}
+			}
+			if (repeatOrNot == 0) {
+				p->value = value[i];
+				repeat++;
+			}
+		}
+		repeat = 0;
 
-/* ¸ù¾Ý×Óµ¯µÄ´ð°¸£¬´´½¨ºÏÊÊµÄÊýÑ§Ìâ£¬´æÈëÁ´±í */
-QUESTION *createQuestion(int numberOfQuestion, BULLET *bullet) {
-	BULLET *initBullet(); // declare function 
-	bullet = initBullet();
-	QUESTION *pointer, *head = NULL;
-	int indexOfSign; // choose sign at random
-	int index = 0;
-	int first, second;
-	char sign; 
-	pointer = (QUESTION *)malloc(sizeof(QUESTION));
-	while (index < numberOfQuestion) {
-		srand((unsigned)time(NULL));
-		indexOfSign = rand() % 4;
-		pointer = (QUESTION *)malloc(sizeof(QUESTION));
+		p->next = NULL;
 		if (head == NULL) {
-			head = pointer;
-		}
-		switch (indexOfSign) {
-		case 0:
-			sign = '+';
-			first = rand() % 20;
-			if (first <= bullet->value) {
-				second = bullet->value - first;
-				pointer->first = first;
-				pointer->second = second;
-				pointer->sign = sign;
-				pointer = pointer->next;
-			}
-			break;
-		case 1:
-			sign = '-';	first = rand() % 20;
-			if (first >= bullet->value) {
-				second = first - bullet->value;
-				pointer->first = first;
-				pointer->second = second;
-				pointer->sign = sign;
-				pointer = pointer->next;
-			}
-			break;
-		case 2:
-			sign = '*';first = rand() % 20;
-			if (bullet->value % first == 0) {
-				second = bullet->value / first;
-				pointer->first = first;
-				pointer->second = second;
-				pointer->sign = sign;
-				pointer = pointer->next;
-			}
-			break;
-		case 3:
-			sign = '/';first = rand() % 21;
-			if (first % bullet->value == 0) {
-				second = first / bullet->value;
-				pointer->first = first;
-				pointer->second = second;
-				pointer->sign = sign;
-				pointer = pointer->next;
-			}
-			break;
-		default:
-			sign = '/';first = rand() % 21;
-			if (first % bullet->value == 0) {
-				second = first / bullet->value;
-				pointer->first = first;
-				pointer->second = second;
-				pointer->sign = sign;
-				pointer = pointer->next;
-			}
-			break;
-		}
-		index++;
-	}
-	pointer->next = NULL;
-	return head;
-}
-//initial (x,y), velocity and typeNumber of animal
-ANIMAL *initAnimal(int order, int indexOfLine, int velocity) {
-	ANIMAL *pointer = NULL;
-//	pointer = (ANIMAL *)malloc(sizeof(ANIMAL));
-	pointer->x = ANIMAL_WIDTH * order;
-	if (indexOfLine == 1) {
-		pointer->y = LINE_ONE;
-	}
-	else if (indexOfLine == 2) {
-		pointer->y = LINE_TWO;
-	}
-	pointer->v = velocity;
-	srand((unsigned)time(NULL));
-	pointer->typeNumber = rand() % 10;
-	return pointer;
-}
-
-//ÔÚ¶¯Îï¿éÏàÓ¦Î»ÖÃ´òÓ¡ÊýÑ§Ìâ
-void displayQuestion(QUESTION *head) {
-	QUESTION *question;
-//	question = (QUESTION *)malloc(sizeof(QUESTION));
-	question = head;
-	while (question != NULL) {
-		RECT rectangle = { question->animal.x, question->animal.y, question->animal.x + ANIMAL_WIDTH, question->animal.y + ANIMAL_HEIGHT };
-		drawtext(_T("%d %c %d", question->first, question->sign, question->second), &rectangle, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		question = question->next;
-	}
-}
-
-int checkBorder(QUESTION *head) {
-	QUESTION *p, *q;
-	p = head;
-	q = head->next;
-	//moving question
-	while (q != NULL) {
-		if (q->x >= GAME_WIDTH - ANIMAL_WIDTH) {
-			q->x = 0;
-			return 0;
+			head = p;
+			tail = p;
 		}
 		else {
-			p = q;
-			q = q->next;
+			tail->next = p;
+			tail = p;
 		}
 	}
-}
-
-/*½«×Óµ¯£¬°´Å¥£¬±³¾°´æÈëÊý×é£¬²¢ÇÒ³õÊ¼»¯*/
-BULLET *initBullet(BULLET &bullet) {
-	BULLET *p = &bullet, *head;
-	p = (BULLET*)malloc(sizeof(*p));
-	head = p;
-	for (int i = 0; i < 4; i++) {
-		p->y = 470;
-		p->x = BULLET_GAP * i;
-		srand((unsigned)time(NULL));
-		p->value = rand() % 21;
-		//draw a ball and print the number on it 
-		p = p->next;
-	}
-	p->next = NULL;
 	return head;
 }
 
-void displayButtonNumber(BULLET *bullet) {
-	BULLET *initBullet(); //declare function 
-	bullet = initBullet();
-	bullet = (BULLET *)malloc(sizeof(BULLET));
+QUESTION *createQuestion(int numberOfQuestion, BULLET *bul) {
+	BULLET *bullet = bul;
+	QUESTION *pointer, *head = NULL, *tail = NULL;
+	int indexOfSign;
+	int first, second;
+	char sign; 
+	for (int i = 0; i < numberOfQuestion; i++) {
+		pointer = (QUESTION *)malloc(sizeof(QUESTION));
+		indexOfSign = rand() % 4;
+		switch (indexOfSign) {
+		case 0: {
+			sign = '+';
+			int a = 0;
+			while (a < 1) {
+				int bulletIndex = rand() % 4;
+				for (int index = 0; index < bulletIndex; index++) {
+					bullet = bullet->next;
+				}
+				first = rand() % 20;
+				if (first <= bullet->value) {
+					second = bullet->value - first;
+					pointer->first = first;
+					pointer->second = second;
+					pointer->sign = sign;
+					a++;
+				}
+				bullet = bul;
+			}
+			break;
+		}
+		case 1: {
+			sign = '-';
+			int b = 0;
+			while (b < 1) {
+				int bulletIndex = rand() % 4;
+				for (int index = 0; index < bulletIndex; index++) {
+					bullet = bullet->next;
+				}
+				first = rand() % 20;
+				if (first >= bullet->value) {
+					second = first - bullet->value;
+					pointer->first = first;
+					pointer->second = second;
+					pointer->sign = sign;
+					b++;
+				}
+				bullet = bul;
+			}
+			break;
+		}
+		case 2: {
+			sign = '*';
+			int a = 0;
+			while (a < 1) {
+				int bulletIndex = rand() % 4;
+				for (int index = 0; index < bulletIndex; index++) {
+					bullet = bullet->next;
+				}
+				first = rand() % 20;
+				if (first != 0 && bullet->value % first == 0) {
+					second = bullet->value / first;
+					pointer->first = first;
+					pointer->second = second;
+					pointer->sign = sign;
+					a++;
+				}
+				bullet = bul;
+			}
+			break;
+		}
+		case 3: {
+			sign = '/';
+			int d = 0;
+			while (d < 1) {
+				int bulletIndex = rand() % 4;
+				for (int index = 0; index < bulletIndex; index++) {
+					bullet = bullet->next;
+				}
+				first = rand() % 21;
+				if (bullet->value != 0 && first != 0 && first % bullet->value == 0) {
+					second = first / bullet->value;
+					pointer->first = first;
+					pointer->second = second;
+					pointer->sign = sign;
+					d++;
+				}
+				bullet = bul;
+			}
+			break;
+			}
+		}
+		pointer->next = NULL;
+		if (head == NULL) {
+			head = pointer;
+			tail = pointer;
+		}
+		else {
+			tail->next = pointer;
+			tail = pointer;
+		}
+	
+	}
+	return head;
+}
+
+void moveAnimal(QUESTION *pointer) {
+	while (pointer != NULL) {
+		pointer->animal->x -= pointer->animal->v;
+		pointer = pointer->next;
+	}
+	
+}
+
+int checkButton(int mouseX, int mouseY) {
+	if (mouseX >= 666 && mouseX < 786 && mouseY >= 160 && mouseY < 200) {
+		// PAUSE
+		return 1;
+	}
+	else if (mouseX >= 666 && mouseX < 786 && mouseY >= 260 && mouseY < 300) {
+		//DELETE
+		return 2;
+	}
+	else if (mouseX >= 666 && mouseX < 786 && mouseY >= 360 && mouseY < 400) {
+		//EXIT
+		return 3;
+	}
+	else return 0;
+}
+
+int checkBullet(int mouseX, int mouseY, BULLET *head) {
+	BULLET *p = head;
+	int indexOfLoop = 0;
+	while (p != NULL) {
+		if (mouseX >= p->x && mouseX <= p->x + BULLET_GAP && mouseY >= p->y && mouseY <= p->y + BULLET_HEIGHT) {
+			return indexOfLoop;
+		}
+		else {
+			p = p->next;
+		}
+		indexOfLoop++;
+	}
+	return -1;
+}
+
+void gameOver(QUESTION *head, BULLET *header, BKGD *pointer) {
+	QUESTION *question = head;
+	BULLET *bullet = header;
+
+	while (question != NULL) {		
+		question = head->next;
+  //	head->next = NULL;
+		free(head);
+		head = question;
+	}
 	while (bullet != NULL) {
-		setfillcolor(BLUE);
-		setlinecolor(BLUE);
-		circle(bullet->x + BULLET_GAP / 2, bullet->y + BULLET_HEIGHT / 2, 30);
-		RECT r = { bullet->x, bullet->y, bullet->x + BULLET_GAP, bullet->y + BULLET_HEIGHT };
-		drawtext(_T(bullet->value), &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		bullet = bullet->next;
+		bullet = header->next;
+	//	header->next = NULL;
+		free(header);
+		header = bullet;
+	}
+	free(pointer);
+}
+
+void deleteAll(QUESTION *head) {
+	QUESTION *question = NULL;
+	while (question != NULL) {		
+		question = head->next;
+	//	head->next = NULL;
+		free(head);
+		head = question;
 	}
 }
-//int checkButton(int mouseX, int mouseY) {
-//	if (mouseX >= 666 && mouseX < 786 && mouseY >= 160 && mouseY < 200) {
-//		// PAUSE
-//		return 1;
-//	}
-//	else if (mouseX >= 666 && mouseX < 786 && mouseY >= 260 && mouseY < 300) {
-//		//DELETE
-//		return 2;
-//	}
-//	else if (mouseX >= 666 && mouseX < 786 && mouseY >= 360 && mouseY < 400) {
-//		//EXIT
-//		return 3;
-//	}
-//	else return 0;
-//}
-//QUESTION checkQuestion(int mouseX, int mouseY, QUESTION *head) {
-//QUESTION *p;
-//p = head;
-//while (p != NULL) {
-//	if (p->x <= mouseX && p->x + ANIMAL_HEIGHT >= mouseX && p->y <= mouseY && p->y >= mouseY) {
-//		return *p;
-//	}
-//	else {
-//		p = p->next;
-//	}
-//}
-//return *head;
-//	}
-//BULLET checkBullet(int mouseX, int mouseY, BULLET *head) {
-//	BULLET *p;
-//	p = head;
-//	while (p != NULL) {
-//		if (p->x <= mouseX && p->x + BULLET_GAP >= mouseX && p->y <= mouseY && p->y >= mouseY) {
-//			return *p;
-//		}
-//		else {
-//			p = p->next;
-//		}
-//	}
-//	return *head;
-//}
-////tutorial
-//
-//void playMusic() {
-//	//ÓÃ×÷ÓÎÏ·±³¾°ÒôÀÖ Òì²½²¥·Å ²¥·ÅÖ¸¶¨WAVÎÄ¼þ ÖØ¸´²¥·Å
-//	PlaySound("Ïà¶ÔÂ·¾¶", NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
-//	//´¥·¢Ö¸¶¨ÒôÆµ Òì²½²¥·Å ²¥·ÅÖ¸¶¨WAVÎÄ¼þ
-//	PlaySound("Ïà¶ÔÂ·¾¶", NULL, SND_ASYNC | SND_FILENAME);
-//	//Í£Ö¹²¥·ÅÖ¸¶¨ÒôÆµ µÚÒ»¸ö²ÎÊýÎªNULLÊÇÍ£Ö¹È«²¿ÒôÆµ
-//	PlaySound("Ïà¶ÔÂ·¾¶", NULL, SND_FILENAME | SND_PURGE);
-//}
+
+int checkQuestion(int mouseX, int mouseY, QUESTION *head) {
+	QUESTION *p = head;
+	int num = 0;
+	while (p != NULL) {
+		if (p->animal->x <= mouseX && p->animal->x + ANIMAL_WIDTH >= mouseX 
+			&& p->animal->y <= mouseY && p->animal->y + ANIMAL_HEIGHT >= mouseY) {
+			return num;
+		}
+		else {
+			num++;
+			p = p->next;
+		}
+	}
+	return -1;
+}
+
+int computeResult(QUESTION *question, int questionNum) {
+	QUESTION *pointer = question;
+	
+	for (int i = 0; i < questionNum; i++) {
+		pointer = pointer->next;
+	}
+	//compute result
+	switch (pointer->sign) {
+	case 43:
+		return pointer->first + pointer->second;
+		break;
+	case 45:
+		return pointer->first - pointer->second;
+		break;
+	case 42:
+		return pointer->first *pointer->second;
+		break;
+	case 47:
+		return pointer->first / pointer->second;
+		break;
+	}
+}
+
+void checkBorder(QUESTION *question) {
+	QUESTION *pointer = NULL;
+	pointer = question;
+	while (pointer != NULL) {
+		if (pointer->animal->x <= -ANIMAL_WIDTH) {
+			pointer->animal->x = GAME_WIDTH;
+		} 
+		pointer = pointer->next;
+	}
+	pointer = question;
+
+}
+
+void initAnimal(int indexOfQuestion, float velocity, QUESTION *pointer) {
+	for (int index = 0; index < indexOfQuestion; index++) {
+		ANIMAL *animal = (ANIMAL *)malloc(sizeof(*animal));
+		pointer->animal = animal;
+		if (index < 5) {
+			pointer->animal->x = GAME_WIDTH + ANIMAL_WIDTH * index;
+			pointer->animal->y = LINE_ONE;
+		}
+		else {
+			pointer->animal->x = GAME_WIDTH + ANIMAL_WIDTH * (index - 5);
+			pointer->animal->y = LINE_TWO;
+		}
+		pointer->animal->v = velocity;
+		pointer->animal->typeNumber = rand() % 10;
+
+		pointer = pointer->next;
+	}
+}
