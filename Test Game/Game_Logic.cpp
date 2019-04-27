@@ -46,6 +46,7 @@ QUESTION *createQuestion(int numberOfQuestion, BULLET *bul) {
 	char sign; 
 	for (int i = 0; i < numberOfQuestion; i++) {
 		pointer = (QUESTION *)malloc(sizeof(QUESTION));
+	//	pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
 		indexOfSign = rand() % 4;
 		switch (indexOfSign) {
 		case 0: {
@@ -143,12 +144,12 @@ QUESTION *createQuestion(int numberOfQuestion, BULLET *bul) {
 	return head;
 }
 
-void moveAnimal(QUESTION *pointer) {
+void moveAnimal(QUESTION *head) {
+	QUESTION *pointer = head;
 	while (pointer != NULL) {
 		pointer->animal->x -= pointer->animal->v;
 		pointer = pointer->next;
 	}
-	
 }
 
 int checkButton(int mouseX, int mouseY) {
@@ -183,29 +184,30 @@ int checkBullet(int mouseX, int mouseY, BULLET *head) {
 }
 
 void gameOver(QUESTION *head, BULLET *header, BKGD *pointer) {
-	QUESTION *question = head;
-	BULLET *bullet = header;
-
-	while (question != NULL) {		
+	QUESTION *question = NULL;
+	BULLET *bullet = NULL;
+	while (head != NULL) {
+		free(head->animal);
+		head = head->next;
+	}
+	while (head != NULL) {		
 		question = head->next;
-  //	head->next = NULL;
 		free(head);
 		head = question;
 	}
-	while (bullet != NULL) {
+	while (header != NULL) {
 		bullet = header->next;
-	//	header->next = NULL;
 		free(header);
 		header = bullet;
 	}
+
 	free(pointer);
 }
 
 void deleteAll(QUESTION *head) {
 	QUESTION *question = NULL;
-	while (question != NULL) {		
+	while (head) {
 		question = head->next;
-	//	head->next = NULL;
 		free(head);
 		head = question;
 	}
@@ -248,11 +250,11 @@ int computeResult(QUESTION *question, int questionNum) {
 		return pointer->first / pointer->second;
 		break;
 	}
+	return SUCCESS;
 }
 
 void checkBorder(QUESTION *question) {
-	QUESTION *pointer = NULL;
-	pointer = question;
+	QUESTION *pointer = question;
 	while (pointer != NULL) {
 		if (pointer->animal->x <= -ANIMAL_WIDTH) {
 			pointer->animal->x = GAME_WIDTH;
@@ -263,10 +265,10 @@ void checkBorder(QUESTION *question) {
 
 }
 
-void initAnimal(int indexOfQuestion, float velocity, QUESTION *pointer) {
+void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
+	QUESTION *pointer = head;
 	for (int index = 0; index < indexOfQuestion; index++) {
-		ANIMAL *animal = (ANIMAL *)malloc(sizeof(*animal));
-		pointer->animal = animal;
+		pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
 		if (index < 5) {
 			pointer->animal->x = GAME_WIDTH + ANIMAL_WIDTH * index;
 			pointer->animal->y = LINE_ONE;
@@ -280,4 +282,6 @@ void initAnimal(int indexOfQuestion, float velocity, QUESTION *pointer) {
 
 		pointer = pointer->next;
 	}
+	
 }
+

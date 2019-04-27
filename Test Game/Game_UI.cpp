@@ -33,17 +33,8 @@ int displayBackground(BKGD *bk) {
 		putimage(0, 0, &bk->background[1]);
 	}
 	else if (bk->indexOfBackground == 2) {
-		LOGFONT f;
-		setbkmode(TRANSPARENT);
-		gettextstyle(&f);
-		f.lfHeight = 96;
-		_tcscpy_s(f.lfFaceName, _T("Consolas"));
-		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_NORMAL;
-		settextstyle(&f);
-		settextcolor(WHITE);
 		putimage(0, 0, &bk->background[2]);
-		outtextxy(260, 120, "You Win!");
+		
 	}
 	else {
 		return FAIL;
@@ -52,17 +43,8 @@ int displayBackground(BKGD *bk) {
 }
 
 int displayWindow(USER *head) {
-	LOGFONT f;
 	USER *pointer = head;
 	InputBox(pointer->username, 20, "Please enter your username:");
-	/*setbkmode(TRANSPARENT);
-	gettextstyle(&f);
-	f.lfHeight = 24;
-	_tcscpy_s(f.lfFaceName, _T("Consolas"));
-	f.lfQuality = ANTIALIASED_QUALITY;
-	f.lfWeight = FW_NORMAL;
-	settextstyle(&f);
-	settextcolor(WHITE);*/
 
 	return SUCCESS;
 }
@@ -110,9 +92,24 @@ int initButton(IMAGE *button) {
 	return SUCCESS;
 }
 
-int displayButton(IMAGE *button, BKGD *bk, USER *head) {
+int displayUsername(USER *head) {
 	USER *user = (USER*)malloc(sizeof(USER));
 	user = head;
+	LOGFONT f;
+	setbkmode(TRANSPARENT);
+	gettextstyle(&f);
+	f.lfHeight = 24;
+	_tcscpy_s(f.lfFaceName, _T("Consolas"));
+	f.lfQuality = ANTIALIASED_QUALITY;
+	f.lfWeight = FW_NORMAL;
+	settextstyle(&f);
+	settextcolor(WHITE);
+	outtextxy(675, 54, "Username：");
+	outtextxy(675, 80, user->username);
+	return SUCCESS;
+}
+
+int displayButton(IMAGE *button, BKGD *bk) {
 	IMAGE startButton = button[0];
 	IMAGE helpButton = button[1];
 	IMAGE pauseButton = button[2];
@@ -125,7 +122,6 @@ int displayButton(IMAGE *button, BKGD *bk, USER *head) {
 	IMAGE exitButtonTwo = button[9];
 	IMAGE exitButtonThree = button[10];
 
-
 	if (bk->indexOfBackground == 0) {
 		putimage(325, 300, &startButton);
 		putimage(325, 380, &helpButton);
@@ -135,21 +131,9 @@ int displayButton(IMAGE *button, BKGD *bk, USER *head) {
 		//Display Buttton Background
 		setfillcolor(RGB(120, 120, 120));
 		solidrectangle(650, 0, 800, 448);
-		LOGFONT f;
-		setbkmode(TRANSPARENT);
-		gettextstyle(&f);
-		f.lfHeight = 24;
-		_tcscpy_s(f.lfFaceName, _T("Consolas"));
-		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_NORMAL;
-		settextstyle(&f);
-		settextcolor(WHITE);
-
 		putimage(666, 160, &pauseButton);
 		putimage(666, 260, &deleteButton);
 		putimage(666, 360, &exitButton);
-		outtextxy(675, 54, "Username：");
-		outtextxy(675, 80, user->username);
 	}
 	else if (bk->indexOfBackground == 2) {
 		putimage(310, 270, &restartButton);
@@ -159,23 +143,6 @@ int displayButton(IMAGE *button, BKGD *bk, USER *head) {
 	else {
 		return FAIL;
 	}
-}
-
-int displayBullet() {
-	IMAGE BULLET_R;
-	IMAGE BULLET;
-	//显示分割线
-	setcolor(BLACK);
-	setlinestyle(PS_SOLID, 2);
-	rectangle(0, 450, WIDTH, HEIGHT);
-	//显示子弹
-	loadimage(&BULLET_R, "image/BULLET.jpg");
-	loadimage(&BULLET, "image/BULLET!.jpg");
-	for (int index = 0; index < 4; index++) {
-		putimage(12 + index * BULLET_GAP, 470, &BULLET_R, SRCAND);
-		putimage(12 + index * BULLET_GAP, 470, &BULLET, SRCINVERT);
-	}
-
 	return SUCCESS;
 }
 
@@ -204,7 +171,8 @@ int displayScore(USER *user) {
 	return SUCCESS;
 }
 
-int displayQuestion(QUESTION *head) {
+int displayQuestion(QUESTION *question) {
+	QUESTION *head = question;
 	char firstNum[20], sign[4], secondNum[4];
 	while (head != NULL) {
 		sprintf_s(firstNum, "%d ", head->first);
@@ -215,10 +183,10 @@ int displayQuestion(QUESTION *head) {
 		LOGFONT f;
 		setbkmode(TRANSPARENT);
 		gettextstyle(&f);
-		f.lfHeight = 24;
+		f.lfHeight = 26;
 		_tcscpy_s(f.lfFaceName, _T("Consolas"));
 		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_NORMAL;
+		f.lfWeight = FW_BOLD;
 		settextstyle(&f);
 		settextcolor(BLACK);
 		RECT rectangle = { head->animal->x, head->animal->y, head->animal->x + ANIMAL_WIDTH - 30, head->animal->y + ANIMAL_HEIGHT };
@@ -228,12 +196,27 @@ int displayQuestion(QUESTION *head) {
 	return SUCCESS;
 }
 
-int displayBulletNumber(BULLET *head) {
+int displayBullet(BULLET *head) {
+	IMAGE BULLET_R;
+	IMAGE BULLET;
+	//显示分割线
+	setcolor(BLACK);
+	setlinestyle(PS_SOLID, 2);
+	rectangle(0, 450, WIDTH, HEIGHT);
+	//显示子弹
+	loadimage(&BULLET_R, "image/BULLET.jpg");
+	loadimage(&BULLET, "image/BULLET_r.jpg");
+	for (int index = 0; index < 4; index++) {
+		putimage(12 + index * BULLET_GAP, 470, &BULLET_R, SRCAND);
+		putimage(12 + index * BULLET_GAP, 470, &BULLET, SRCINVERT);
+	}
+	//显示子弹数字
 	setfillcolor(BLUE);
 	setlinecolor(BLUE);
 	char s[5];
 	while (head != NULL) {
 		sprintf_s(s, "%d", head->value);
+		setfillcolor(BLUE);
 		solidcircle(head->x + BULLET_GAP / 2, head->y + BULLET_HEIGHT / 2, 20);
 		LOGFONT f;
 		setbkmode(TRANSPARENT);
@@ -255,7 +238,7 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r) {
 	IMAGE panda, pig, frog, giraffe, tiger, hippo, monkey, lion, dog, cat;
 	IMAGE panda_r, pig_r, frog_r, giraffe_r, tiger_r, hippo_r, monkey_r, lion_r, dog_r, cat_r;
 	//载入动物图
-	loadimage(&panda, "image/panda.jpg");
+	loadimage(&panda, "image/sheep.jpg");
 	loadimage(&pig, "image/pig.jpg");
 	loadimage(&frog, "image/frog.jpg");
 	loadimage(&giraffe, "image/giraffe.jpg");
@@ -266,7 +249,7 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r) {
 	loadimage(&dog, "image/dog.jpg");
 	loadimage(&cat, "image/cat.jpg");
 	//载入掩码图
-	loadimage(&panda_r, "image/panda_r.jpg");
+	loadimage(&panda_r, "image/sheep_r.jpg");
 	loadimage(&pig_r, "image/pig_r.jpg");
 	loadimage(&frog_r, "image/frog_r.jpg");
 	loadimage(&giraffe_r, "image/giraffe_r.jpg");
@@ -302,13 +285,12 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r) {
 
 void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
 	QUESTION *p = head;
-	ANIMAL *ani = (ANIMAL *)malloc(sizeof(*animal));
-	p->animal = ani;
+
 	while (p != NULL) {
 		switch (p->animal->typeNumber) {
 		case 0:
-			putimage(p->animal->x, p->animal->y, animal_r, SRCAND);
-			putimage(p->animal->x, p->animal->y, animal, SRCINVERT);
+			putimage(p->animal->x - 7, p->animal->y, animal_r, NOTSRCERASE);
+			putimage(p->animal->x - 7, p->animal->y, animal, SRCINVERT);
 			break;
 		case 1:
 			putimage(p->animal->x, p->animal->y, animal_r + 1, SRCAND);
@@ -349,4 +331,12 @@ void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
 		}
 		p = p->next;
 	}
+}
+
+void drawTime(double sec) {
+	char str[30];
+	settextcolor(RGB(255, 255, 255));
+	settextstyle(20, 0, _T("Consolas"));
+	sprintf_s(str, "Remaining Time：%2.lf s", sec);
+	outtextxy(15, 20, str);
 }
