@@ -284,4 +284,12 @@ void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
 	}
 	
 }
-
+// score page
+//int finialScore(USER *user) {
+//	//循环
+//	//putimage page image
+//	//word style
+//	outtextxy(10, 10, user->score);
+//	//of yes -> writeRecordFile
+//	//if no -> not write
+//}

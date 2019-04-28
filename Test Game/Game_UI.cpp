@@ -20,10 +20,10 @@ int displayBackground(BKGD *bk) {
 		LOGFONT f;
 		setbkmode(TRANSPARENT);
 		gettextstyle(&f);
-		f.lfHeight = 72;
-		_tcscpy_s(f.lfFaceName, _T("Consolas"));
+		f.lfHeight = 88;
+		_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
 		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_NORMAL;
+		f.lfWeight = FW_BOLD;
 		settextstyle(&f);
 		settextcolor(WHITE);
 		putimage(0, 0, &bk->background[0]);
