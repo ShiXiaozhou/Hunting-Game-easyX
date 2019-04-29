@@ -15,24 +15,31 @@ int main() {
 	BULLET *head = NULL;
 	QUESTION *question = NULL, *qhead = NULL, *pointer = NULL;
 	USER user;
-//	IMAGE mouseImage, mouseImage_r;
 	IMAGE help, modeChoose, ranking;
 	IMAGE animal[10], animal_r[10];
 	MOUSEMSG Mouse;
 	clock_t start, finish;
 	clock_t startGame, finishGame;
+	IMAGE startBtn, helpBtn, exitBtn, recover;
+	IMAGE startBtn_r, helpBtn_r, exitBtn_r, back;
 	double duration, gameDuration;
 
 	srand((unsigned)time(NULL));
 	setBackground(&background);
-//	loadimage(&mouseImage, "image/mouse.jpg");
-//	loadimage(&mouseImage, "image/mouse_r.jpg");
 	loadimage(&help, "image/helpPage.jpg");
 	loadimage(&modeChoose, "image/mode.jpg");
 	imageLoading(animal, animal_r);
 	int change = 0;
 	int mode = 1;
 	double timeLeft = 0;
+	//loadimage(&startBtn, "image/CTA_2.jpg");
+	//loadimage(&helpBtn, "image/CTA_3.jpg");
+	//loadimage(&exitBtn, "image/CTA_4.jpg");
+	loadimage(&startBtn_r, "image/START1.jpg");
+	loadimage(&helpBtn_r, "image/Help1.jpg");
+	loadimage(&exitBtn_r, "image/EXIT1.jpg");
+	loadimage(&back, "image/START2.jpg");
+	loadimage(&recover, "image/recovery.jpg");
 
 	mciSendString("open audio/game_music.mp3 alias bkmusic", NULL, 0, NULL);
 	mciSendString("play bkmusic repeat", NULL, 0, NULL);
@@ -46,24 +53,37 @@ int main() {
 		bullet = initBullet();
 		head = bullet;
 		initButton(button);
+		question = createQuestion(10, bullet);
 		int helpPage = 0;
+		int modeLoop = 0;
 		
 		//The Welcome Page
 		while (change == 0) {
 			background.indexOfBackground = 0;
 			displayBackground(&background);
-			displayButton(button, &background);
+		//	displayButton(button, &background);
 			if (helpPage == 1) {
 				putimage(0, 0, &help);
 			}
 			if (MouseHit()) {
 				Mouse = GetMouseMsg();
-			//	putimage(Mouse.x, Mouse.y, &mouseImage, SRCINVERT);
-			//	putimage(Mouse.x, Mouse.y, &mouseImage_r, NOTSRCERASE);
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 300 && Mouse.y <= 340) {
+						putimage(315, 300, &back, SRCAND);
+						putimage(315, 300, &startBtn_r, SRCINVERT);
+					}
+					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 380 && Mouse.y <= 420) {
+						putimage(315, 380, &back, SRCAND);
+						putimage(315, 380, &helpBtn_r, SRCINVERT);
+					}
+					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 460 && Mouse.y <= 500) {
+						putimage(315, 460, &back, SRCAND);
+						putimage(315, 460, &exitBtn_r, SRCINVERT);
+					}
+				}
+				if (Mouse.uMsg == WM_LBUTTONUP) {
+					if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 300 && Mouse.y <= 340) {
 						//area of start
-						//如果上次有缓存, 判断是否要用上次的游戏记录
 						change = 1;
 					}
 					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 380 && Mouse.y <= 420) {
@@ -71,52 +91,37 @@ int main() {
 						helpPage = 1;
 					}
 					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 460 && Mouse.y <= 500) {
-					//  area of exit
-					//	gameOver(question, bullet, &background);
+						//  area of exit
+						//	gameOver(question, bullet, &background);
 						return 0;
 					}
 					else if (Mouse.x >= 760 && Mouse.x < 800 && Mouse.y >= 0 && Mouse.y <= 40) {
 						helpPage = 0;
 					}
 				}
-				else if (Mouse.uMsg == WM_MOUSEMOVE) {
-					if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 300 && Mouse.y <= 340) {
-						//change start button
-					}
-					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 380 && Mouse.y <= 420) {
-						//change help button
-					}
-					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 460 && Mouse.y <= 500) {
-						//change exit button
-					}
-					else {
-						//displayButton();
-					}
-				}
+				
+				FlushBatchDraw();
+				
 			}
-			FlushBatchDraw();
+			
 		}
 		change = 0;
-		int modeLoop = 0;
+		
 		while (modeLoop == 0) {
 			putimage(0, 0, &modeChoose);
 			FlushBatchDraw();
-			char chooseMode;
 			if (MouseHit()) {
 				Mouse = GetMouseMsg();
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (Mouse.x >= 350 && Mouse.x <= 450 && Mouse.y >= 195 && Mouse.y <= 245) {
-						question = createQuestion(10, bullet);
 						initAnimal(10, 1, question);
 						timeLeft = 60;
 					}
 					else if (Mouse.x >= 320 && Mouse.x <= 483 && Mouse.y >= 275 && Mouse.y <= 325) {
-						question = createQuestion(10, bullet);
 						initAnimal(10, 2, question);
 						timeLeft = 45;
 					}
 					else if (Mouse.x >= 300 && Mouse.x <= 500 && Mouse.y >= 355 && Mouse.y <= 405) {
-						question = createQuestion(10, bullet);
 						initAnimal(10, 4, question);
 						timeLeft = 30;
 					}
@@ -124,6 +129,8 @@ int main() {
 				}
 			}
 		}
+		/*MessageBox(GetHWnd(), "是否继续游戏？", "提示", MB_YESNO);
+		timeLeft = readData(&user, bullet, question);*/
 		
 		background.indexOfBackground = 1;
 		displayBackground(&background);
@@ -144,6 +151,8 @@ int main() {
 		int answer = 0;
 		int result = 0;
 		int computeNum = 0;
+		int deleteNum = 0;
+		int pause = 0;
 		start = clock();
 
 	//  main game loop
@@ -152,7 +161,7 @@ int main() {
 			int chooseNum = 0; //time of choose question
 			int buttonType = -1;
 			int questionNum = -1;
-			
+
 			indexOfLoop++;
 			time++;
 			sprintf_s(s, "fps: %d", fps);
@@ -170,8 +179,12 @@ int main() {
 					displayQuestion(question);
 					moveAnimal(question);
 					checkBorder(question);
+					pointer = copyList(question);
 				}
 				displayButton(button, &background);
+				if (deleteAnimal == 1) {
+					putimage(666, 260, &recover);
+				}
 				displayUsername(&user);
 				outtextxy(700, 10, s);
 				innerLoop++;
@@ -222,6 +235,7 @@ int main() {
 									qhead->next = question->next;
 									free(question);
 									question = pointer;
+									pointer = copyList(question);
 								}
 							}
 							else {
@@ -242,16 +256,27 @@ int main() {
 							system("pause");
 							end = 2;
 							//putimage continue button
+							pause = 1;
 							
 						}
 						else if (buttonType == 2) {
 						//  do Clear
-							deleteAll(question);
-							deleteAnimal = 1;
-							MessageBox(GetHWnd(), "是否回到结束页面", "提示", MB_YESNO);
+							if (deleteNum == 1) {
+								question = pointer;
+								deleteNum = 0;
+								deleteAnimal = 0;
+							}
+							else {
+								deleteAll(question);
+								deleteAnimal = 1;
+								deleteNum++;
+							}
+							
 						}
 						else if (buttonType == 3) {
 							//whether save the game data?
+							MessageBox(GetHWnd(), "是否保存游戏数据？", "提示", MB_YESNO);
+							writeData(&user, timeLeft - gameDuration, bullet, question);
 							return 0;
 						}
 					}
@@ -312,14 +337,10 @@ int main() {
 
 		IMAGE gameOver;
 		loadimage(&gameOver, "image/gameOver.jpg");
+		loadimage(&ranking, "image/RankingPage.jpg");
 		int recordPage = 0;
 	//	End Page
 		while (end == 2 || fail == 1) {
-			//int scorePage = 0;
-			//while (scorePage == 0) {
-			//	//putimage 你的得分 && 是否保存游戏记录？
-			//	//if(yes)->writeRecord   if(no)->do not write ,then cut the loop
-			//}
 			if (end == 2) {
 				background.indexOfBackground = 2;
 				displayBackground(&background);
@@ -330,8 +351,7 @@ int main() {
 			MOUSEMSG Mouse;
 			if (MouseHit()) {
 				Mouse = GetMouseMsg();
-				switch (Mouse.uMsg) {
-				case WM_LBUTTONDOWN:
+				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (Mouse.x >= 310 && Mouse.x <= 490 && Mouse.y >= 270 && Mouse.y <= 310) {
 						//area of restart
 						end = 0;
@@ -351,10 +371,8 @@ int main() {
 				}
 			}
 			if (recordPage == 1) {
-				loadimage(&ranking, "image/RankingPage.jpg");
 				putimage(0, 0, &ranking);
-				//display the elements in the ranking page
-				drawRecordFile();
+				drawRecordFile(&user		);
 			}
 			FlushBatchDraw();
 		}

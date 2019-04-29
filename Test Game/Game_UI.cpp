@@ -17,17 +17,7 @@ int setBackground(BKGD *pointer) {
 int displayBackground(BKGD *bk) {
 	IMAGE slogan;
 	if (bk->indexOfBackground == 0) {
-		LOGFONT f;
-		setbkmode(TRANSPARENT);
-		gettextstyle(&f);
-		f.lfHeight = 88;
-		_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
-		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_BOLD;
-		settextstyle(&f);
-		settextcolor(WHITE);
 		putimage(0, 0, &bk->background[0]);
-		outtextxy(190, 155, "Hunting Game");
 	}
 	else if (bk->indexOfBackground == 1) {
 		putimage(0, 0, &bk->background[1]);
@@ -339,4 +329,32 @@ void drawTime(double sec) {
 	settextstyle(20, 0, _T("Consolas"));
 	sprintf_s(str, "Remaining Time：%2.lf s", sec);
 	outtextxy(15, 20, str);
+}
+
+QUESTION *copyList(QUESTION *h) {
+	QUESTION *current = h;
+	QUESTION *pointer = NULL, *head = NULL, *tail = NULL;
+	while (current != NULL) {
+		pointer = (QUESTION*)malloc(sizeof(*pointer));
+		pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
+		pointer->first = current->first;
+		pointer->second = current->second;
+		pointer->sign = current->sign;
+		pointer->animal->typeNumber = current->animal->typeNumber;
+		pointer->animal->x = current->animal->x;
+		pointer->animal->y = current->animal->y;
+		pointer->animal->v = current->animal->v;
+
+		pointer->next = NULL;
+		if (head == NULL) {
+			head = pointer;
+			tail = pointer;
+		}
+		else {
+			tail->next = pointer;
+			tail = pointer;
+		}
+		current = current->next;
+	}
+	return head;
 }

@@ -1,12 +1,12 @@
 ﻿#pragma once
 #ifndef DATA_H
 #define DATA_H
-int drawRecordFile();
+int drawRecordFile(USER *user);
 int writeRecordFile(USER *user);
 int writeData(USER *user, double time, BULLET *bhead, QUESTION *qhead);
-int readUser(USER *user);
-double readTime(double time);
+double readUser(USER *user);
+//double readTime();
 int readBullet(BULLET *bullet);
 int readQuestion(QUESTION *question);
-double readData(USER *user, double time, BULLET *bhead, QUESTION *qhead);
+double readData(USER *user, BULLET *bhead, QUESTION *qhead);
 #endif

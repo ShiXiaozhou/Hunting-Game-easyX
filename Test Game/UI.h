@@ -32,11 +32,11 @@ typedef struct animal{
 	int typeNumber;
 }ANIMAL;
 
-typedef struct question{
+typedef struct current{
 	int first;
 	int second;
 	char sign;
-	struct question *next;
+	struct current *next;
 	ANIMAL *animal;
 }QUESTION;
 
@@ -69,4 +69,5 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r);
 int displayBullet(BULLET *head);
 int displayQuestion(QUESTION *head);
 void drawTime(double sec);
+QUESTION *copyList(QUESTION *question);
 #endif

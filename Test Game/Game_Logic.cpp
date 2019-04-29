@@ -46,7 +46,6 @@ QUESTION *createQuestion(int numberOfQuestion, BULLET *bul) {
 	char sign; 
 	for (int i = 0; i < numberOfQuestion; i++) {
 		pointer = (QUESTION *)malloc(sizeof(QUESTION));
-	//	pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
 		indexOfSign = rand() % 4;
 		switch (indexOfSign) {
 		case 0: {
