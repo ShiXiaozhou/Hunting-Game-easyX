@@ -35,26 +35,22 @@ int displayBackground(BKGD *bk) {
 int displayWindow(USER *head) {
 	USER *pointer = head;
 	InputBox(pointer->username, 20, "Please enter your username:");
-
+	
 	return SUCCESS;
 }
 
 int initButton(IMAGE *button) {
-	//开始界面
 	IMAGE startButton;
 	IMAGE helpButton;
-	//游戏界面
 	IMAGE pauseButton;
 	IMAGE deleteButton;
 	IMAGE exitButton;
 	IMAGE continueButton;
 	IMAGE createButton;
-	//结束界面
 	IMAGE restartButton;
 	IMAGE rankingButton;
 	IMAGE exitButtonTwo;
 	IMAGE exitButtonThree;
-	//将按钮图片存入数组
 	loadimage(&startButton, "image/StartButton.jpg");
 	loadimage(&helpButton, "image/HelpButton.jpg");
 	loadimage(&pauseButton, "image/PAUSE_BUTTON.jpg");
@@ -88,8 +84,8 @@ int displayUsername(USER *head) {
 	LOGFONT f;
 	setbkmode(TRANSPARENT);
 	gettextstyle(&f);
-	f.lfHeight = 24;
-	_tcscpy_s(f.lfFaceName, _T("Consolas"));
+	f.lfHeight = 30;
+	_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
 	f.lfQuality = ANTIALIASED_QUALITY;
 	f.lfWeight = FW_NORMAL;
 	settextstyle(&f);
@@ -118,7 +114,7 @@ int displayButton(IMAGE *button, BKGD *bk) {
 		putimage(325, 460, &exitButtonTwo);
 	}
 	else if (bk->indexOfBackground == 1) {
-		//Display Buttton Background
+		//display Buttton Background
 		setfillcolor(RGB(120, 120, 120));
 		solidrectangle(650, 0, 800, 448);
 		putimage(666, 160, &pauseButton);
@@ -149,7 +145,7 @@ int displayScore(USER *user) {
 	setbkmode(TRANSPARENT);
 	gettextstyle(&f);
 	f.lfHeight = 48;
-	_tcscpy_s(f.lfFaceName, _T("Consolas"));
+	_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
 	f.lfQuality = ANTIALIASED_QUALITY;
 	f.lfWeight = FW_NORMAL;
 	settextstyle(&f);
@@ -189,18 +185,18 @@ int displayQuestion(QUESTION *question) {
 int displayBullet(BULLET *head) {
 	IMAGE BULLET_R;
 	IMAGE BULLET;
-	//显示分割线
+	//show cut line
 	setcolor(BLACK);
 	setlinestyle(PS_SOLID, 2);
 	rectangle(0, 450, WIDTH, HEIGHT);
-	//显示子弹
+	//show button
 	loadimage(&BULLET_R, "image/BULLET.jpg");
 	loadimage(&BULLET, "image/BULLET_r.jpg");
 	for (int index = 0; index < 4; index++) {
 		putimage(12 + index * BULLET_GAP, 470, &BULLET_R, SRCAND);
 		putimage(12 + index * BULLET_GAP, 470, &BULLET, SRCINVERT);
 	}
-	//显示子弹数字
+	//show the button number
 	setfillcolor(BLUE);
 	setlinecolor(BLUE);
 	char s[5];
@@ -214,7 +210,7 @@ int displayBullet(BULLET *head) {
 		f.lfHeight = 22;
 		_tcscpy_s(f.lfFaceName, _T("Consolas"));
 		f.lfQuality = ANTIALIASED_QUALITY;
-		f.lfWeight = FW_NORMAL;
+		f.lfWeight = FW_BOLD;
 		settextstyle(&f);
 		settextcolor(BLACK);
 		RECT r = { head->x, head->y, head->x + BULLET_GAP, head->y + BULLET_HEIGHT };
@@ -325,36 +321,16 @@ void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
 
 void drawTime(double sec) {
 	char str[30];
-	settextcolor(RGB(255, 255, 255));
-	settextstyle(20, 0, _T("Consolas"));
+	LOGFONT f;
+	setbkmode(TRANSPARENT);
+	gettextstyle(&f);
+	f.lfHeight = 24;
+	_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
+	f.lfQuality = ANTIALIASED_QUALITY;
+	f.lfWeight = FW_NORMAL;
+	settextstyle(&f);
+	settextcolor(WHITE);
 	sprintf_s(str, "Remaining Time：%2.lf s", sec);
 	outtextxy(15, 20, str);
 }
 
-QUESTION *copyList(QUESTION *h) {
-	QUESTION *current = h;
-	QUESTION *pointer = NULL, *head = NULL, *tail = NULL;
-	while (current != NULL) {
-		pointer = (QUESTION*)malloc(sizeof(*pointer));
-		pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
-		pointer->first = current->first;
-		pointer->second = current->second;
-		pointer->sign = current->sign;
-		pointer->animal->typeNumber = current->animal->typeNumber;
-		pointer->animal->x = current->animal->x;
-		pointer->animal->y = current->animal->y;
-		pointer->animal->v = current->animal->v;
-
-		pointer->next = NULL;
-		if (head == NULL) {
-			head = pointer;
-			tail = pointer;
-		}
-		else {
-			tail->next = pointer;
-			tail = pointer;
-		}
-		current = current->next;
-	}
-	return head;
-}

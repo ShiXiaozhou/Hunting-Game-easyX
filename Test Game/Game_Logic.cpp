@@ -283,12 +283,31 @@ void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
 	}
 	
 }
-// score page
-//int finialScore(USER *user) {
-//	//循环
-//	//putimage page image
-//	//word style
-//	outtextxy(10, 10, user->score);
-//	//of yes -> writeRecordFile
-//	//if no -> not write
-//}
+
+QUESTION *copyList(QUESTION *h) {
+	QUESTION *current = h;
+	QUESTION *pointer = NULL, *head = NULL, *tail = NULL;
+	while (current != NULL) {
+		pointer = (QUESTION*)malloc(sizeof(*pointer));
+		pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
+		pointer->first = current->first;
+		pointer->second = current->second;
+		pointer->sign = current->sign;
+		pointer->animal->typeNumber = current->animal->typeNumber;
+		pointer->animal->x = current->animal->x;
+		pointer->animal->y = current->animal->y;
+		pointer->animal->v = current->animal->v;
+
+		pointer->next = NULL;
+		if (head == NULL) {
+			head = pointer;
+			tail = pointer;
+		}
+		else {
+			tail->next = pointer;
+			tail = pointer;
+		}
+		current = current->next;
+	}
+	return head;
+}

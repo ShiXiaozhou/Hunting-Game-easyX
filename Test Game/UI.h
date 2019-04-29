@@ -69,5 +69,4 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r);
 int displayBullet(BULLET *head);
 int displayQuestion(QUESTION *head);
 void drawTime(double sec);
-QUESTION *copyList(QUESTION *question);
 #endif

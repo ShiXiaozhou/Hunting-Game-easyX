@@ -59,12 +59,7 @@ int drawRecordFile(USER *user) {
 	//print in the ranking page
 	LOGFONT f;
 	setbkmode(TRANSPARENT);
-	gettextstyle(&f);
-	f.lfHeight = 32;
-	_tcscpy_s(f.lfFaceName, _T("Comic Sans MS"));
-	f.lfQuality = ANTIALIASED_QUALITY;
-	f.lfWeight = FW_BOLD;
-	settextstyle(&f);
+	settextstyle(32, 0, _T("Comic Sans MS"));
 	settextcolor(WHITE);
 	for (int i = 0; i < 10; i++) {
 		outtextxy(255, 170 + 35 * i, userData[i].username);

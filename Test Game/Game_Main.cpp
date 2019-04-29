@@ -9,59 +9,73 @@
 #pragma comment(lib, "Winmm.lib")
 
 int main() {
+	USER user;
+	user.score = 0;
 	BKGD background;
 	IMAGE button[15];
+	MOUSEMSG Mouse;
 	BULLET *bullet;
 	BULLET *head = NULL;
-	QUESTION *question = NULL, *qhead = NULL, *pointer = NULL;
-	USER user;
-	IMAGE help, modeChoose, ranking;
+	IMAGE help, modeChoose, ranking, gameOver;
 	IMAGE animal[10], animal_r[10];
-	MOUSEMSG Mouse;
 	clock_t start, finish;
 	clock_t startGame, finishGame;
-	IMAGE startBtn, helpBtn, exitBtn, recover;
+	IMAGE recover, continueBtn;
 	IMAGE startBtn_r, helpBtn_r, exitBtn_r, back;
-	double duration, gameDuration;
-
+	QUESTION *question = NULL, *qhead = NULL, *pointer = NULL;
+	double duration, gameDuration, timeLeft;
 	srand((unsigned)time(NULL));
+
 	setBackground(&background);
+	imageLoading(animal, animal_r);
 	loadimage(&help, "image/helpPage.jpg");
 	loadimage(&modeChoose, "image/mode.jpg");
-	imageLoading(animal, animal_r);
-	int change = 0;
-	int mode = 1;
-	double timeLeft = 0;
-	//loadimage(&startBtn, "image/CTA_2.jpg");
-	//loadimage(&helpBtn, "image/CTA_3.jpg");
-	//loadimage(&exitBtn, "image/CTA_4.jpg");
 	loadimage(&startBtn_r, "image/START1.jpg");
 	loadimage(&helpBtn_r, "image/Help1.jpg");
 	loadimage(&exitBtn_r, "image/EXIT1.jpg");
 	loadimage(&back, "image/START2.jpg");
 	loadimage(&recover, "image/recovery.jpg");
+	loadimage(&continueBtn, "image/CONTINUE_BUTTON.jpg");
+	loadimage(&gameOver, "image/gameOver.jpg");
+	loadimage(&ranking, "image/RankingPage.jpg");
 
 	mciSendString("open audio/game_music.mp3 alias bkmusic", NULL, 0, NULL);
 	mciSendString("play bkmusic repeat", NULL, 0, NULL);
 
 	while (1) {
-		initgraph(WIDTH, HEIGHT);	//can showconsole if necessary
+		char s[10];
 		int end = 0;
 		int fail = 0;
 		int deleteAnimal = 0;
-		BeginBatchDraw();
-		bullet = initBullet();
-		head = bullet;
-		initButton(button);
-		question = createQuestion(10, bullet);
 		int helpPage = 0;
 		int modeLoop = 0;
-		
+		int change = 0;
+		int indexOfLoop = 0;
+		int innerLoop = 0;
+		int fps = 0;
+		int setBullet = 0;
+		int answer = 0;
+		int result = 0;
+		int computeNum = 0;
+		int deleteNum = 0;
+		int pause = 0;
+		int pauseNum = 0;
+		int recordPage = 0;
+		int startShift = 0, shiftNum = 0;
+		double shift = 0, shiftSum = 0;
+
+		initgraph(WIDTH, HEIGHT);
+		initButton(button);
+		bullet = initBullet();
+		head = bullet;
+		question = createQuestion(10, bullet);
+		initAnimal(10, 1, question);
+		BeginBatchDraw();
+
 		//The Welcome Page
 		while (change == 0) {
 			background.indexOfBackground = 0;
 			displayBackground(&background);
-		//	displayButton(button, &background);
 			if (helpPage == 1) {
 				putimage(0, 0, &help);
 			}
@@ -92,21 +106,21 @@ int main() {
 					}
 					else if (Mouse.x >= 325 && Mouse.x <= 475 && Mouse.y >= 460 && Mouse.y <= 500) {
 						//  area of exit
-						//	gameOver(question, bullet, &background);
 						return 0;
 					}
 					else if (Mouse.x >= 760 && Mouse.x < 800 && Mouse.y >= 0 && Mouse.y <= 40) {
 						helpPage = 0;
 					}
 				}
-				
 				FlushBatchDraw();
-				
 			}
-			
 		}
-		change = 0;
-		
+		//readData
+		if (MessageBox(GetHWnd(), "是否继续上次游戏进度？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
+			timeLeft = readData(&user, bullet, question);
+			modeLoop = 1;
+		}
+		//choose mode
 		while (modeLoop == 0) {
 			putimage(0, 0, &modeChoose);
 			FlushBatchDraw();
@@ -129,75 +143,73 @@ int main() {
 				}
 			}
 		}
-		/*MessageBox(GetHWnd(), "是否继续游戏？", "提示", MB_YESNO);
-		timeLeft = readData(&user, bullet, question);*/
 		
+		start = clock();
+		startGame = clock();
 		background.indexOfBackground = 1;
 		displayBackground(&background);
-		user.score = 0;
 		FlushBatchDraw();
 
 		displayBullet(bullet);
 		displayWindow(&user);
 		displayScore(&user);
 
-		int indexOfLoop = 0;
-		int innerLoop = 0;
-		char s[10];
-		int fps = 0;
-		int setBullet = 0;
-		int time = 0;
-
-		int answer = 0;
-		int result = 0;
-		int computeNum = 0;
-		int deleteNum = 0;
-		int pause = 0;
-		start = clock();
-
 	//  main game loop
-		startGame = clock();
 		while (end == 0) {
-			int chooseNum = 0; //time of choose question
+			int chooseNum = 0;	//time of choose question
 			int buttonType = -1;
 			int questionNum = -1;
-
 			indexOfLoop++;
-			time++;
 			sprintf_s(s, "fps: %d", fps);
+
+			//refresh rate
 			if (indexOfLoop % 7 == 0) {
 				finish = clock();
 				duration = (double)(finish - start) / CLOCKS_PER_SEC;
+				putimage(0, 0, &background.background[3]);
 				if (duration > 1) {
 					start = clock();
 					fps = innerLoop;
 					innerLoop = 0;
 				}
-				putimage(0, 0, &background.background[3]);
 				if (deleteAnimal == 0) {
 					displayAnimal(question, animal, animal_r);
 					displayQuestion(question);
-					moveAnimal(question);
+					if (pause == 0) {
+						moveAnimal(question);
+					}
 					checkBorder(question);
 					pointer = copyList(question);
 				}
 				displayButton(button, &background);
 				if (deleteAnimal == 1) {
+					//recover button
 					putimage(666, 260, &recover);
+				}
+				if (pause == 1) {
+					//continue button
+					putimage(666, 160, &continueBtn);
 				}
 				displayUsername(&user);
 				outtextxy(700, 10, s);
 				innerLoop++;
 			}
 			//Time bar
-			finishGame = clock();
-			gameDuration = (finishGame - startGame) / CLOCKS_PER_SEC;
+			if (pause == 0) {
+				if (shiftNum != 0) {
+					shiftSum += clock();
+					shiftNum = 0;
+				}
+				finishGame = clock();
+				gameDuration = (finishGame - startGame - shiftSum + shift) / CLOCKS_PER_SEC;
+			}
+			else if (startShift == 0) {
+				shift += clock();
+				startShift = 1;
+				shiftNum = 1;
+			}
 			drawTime(timeLeft - gameDuration);
 
-			if (timeLeft - gameDuration < 0) {
-				fail++;
-				end++;
-			}
 			if (MouseHit()) {
 				Mouse = GetMouseMsg();
 				int mouseX = Mouse.x;
@@ -252,12 +264,16 @@ int main() {
 						//judge button
 						buttonType = checkButton(mouseX, mouseY);
 						if (buttonType == 1) {
-							//do PAUSE;
-							system("pause");
-							end = 2;
-							//putimage continue button
-							pause = 1;
-							
+							//do PAUSE
+							if (pauseNum == 1) {
+								pause = 0;
+								pauseNum = 0;
+							}
+							else {
+								pause = 1;
+								pauseNum++;
+								startShift = 0;
+							}
 						}
 						else if (buttonType == 2) {
 						//  do Clear
@@ -274,9 +290,10 @@ int main() {
 							
 						}
 						else if (buttonType == 3) {
-							//whether save the game data?
-							MessageBox(GetHWnd(), "是否保存游戏数据？", "提示", MB_YESNO);
-							writeData(&user, timeLeft - gameDuration, bullet, question);
+							//do EXIT
+							if (MessageBox(GetHWnd(), "是否保存游戏数据？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
+								writeData(&user, timeLeft - gameDuration, bullet, question);
+							}
 							return 0;
 						}
 					}
@@ -286,9 +303,9 @@ int main() {
 						mciSendString("close clickmusic", NULL, 0, NULL);
 						mciSendString("open audio/click.mp3 alias clickmusic", NULL, 0, NULL);
 						mciSendString("play clickmusic", NULL, 0, NULL);
+
 						displayBullet(bullet);
 						int bulletType = checkBullet(mouseX, mouseY, bullet);
-
 						if (bulletType != -1) {
 							for (int indexOfLoop = 0; indexOfLoop < bulletType; indexOfLoop++) {
 								bullet = bullet->next;
@@ -307,6 +324,7 @@ int main() {
 					}
 				}
 			}
+
 			if (_kbhit()) {
 				int index = _getch();
 				if (index >= 49 && index <= 52) {
@@ -324,6 +342,11 @@ int main() {
 					setBullet++;
 				}
 			}
+			//judge game condition
+			if (timeLeft - gameDuration < 0) {
+				fail++;
+				end++;
+			}
 			if (user.score >= 100) {
 				end = end + 2;
 			}
@@ -335,10 +358,6 @@ int main() {
 		}
 		writeRecordFile(&user);
 
-		IMAGE gameOver;
-		loadimage(&gameOver, "image/gameOver.jpg");
-		loadimage(&ranking, "image/RankingPage.jpg");
-		int recordPage = 0;
 	//	End Page
 		while (end == 2 || fail == 1) {
 			if (end == 2) {
@@ -348,7 +367,7 @@ int main() {
 			if (fail == 1) {
 				putimage(0, 0, &gameOver);
 			}
-			MOUSEMSG Mouse;
+
 			if (MouseHit()) {
 				Mouse = GetMouseMsg();
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
@@ -372,11 +391,12 @@ int main() {
 			}
 			if (recordPage == 1) {
 				putimage(0, 0, &ranking);
-				drawRecordFile(&user		);
+				drawRecordFile(&user);
 			}
 			FlushBatchDraw();
 		}
 	}
+
 	EndBatchDraw();
 	_getch();
 	closegraph();
