@@ -261,7 +261,6 @@ void checkBorder(QUESTION *question) {
 		pointer = pointer->next;
 	}
 	pointer = question;
-
 }
 
 void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {

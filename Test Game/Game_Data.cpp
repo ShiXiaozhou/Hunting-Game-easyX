@@ -84,17 +84,13 @@ int drawRecordFile(USER *user) {
 int writeData(USER *user, double time, BULLET *bhead, QUESTION *qhead) {
 	FILE *fp;
 	errno_t err;
-	int questionNum = 0;
 	BULLET *bullet = (BULLET*)malloc(sizeof(*bullet));
 	bullet = bhead;
 	QUESTION *question = (QUESTION*)malloc(sizeof(*question));
 	question = qhead;
 	err = fopen_s(&fp, "Data/gameData.dat", "w");
-	if (fp == NULL) {
-		return FAIL;
-	}
-
-	fprintf(fp, "%s %d %lf ", user->username, user->score, time);
+	
+	fprintf(fp, "%s %d %d %lf ", user->username, user->score, user->questionLeft, time);
 	for (int i = 0; i < 4; i++) {
 		fprintf(fp, "%d %d %d ", bhead->x, bhead->y, bhead->value);
 		bhead = bhead->next;
@@ -104,62 +100,40 @@ int writeData(USER *user, double time, BULLET *bhead, QUESTION *qhead) {
 		fprintf(fp, "%d %d %d %d ", qhead->animal->typeNumber, qhead->animal->v, 
 			qhead->animal->x, qhead->animal->y);
 		qhead = qhead->next;
-		questionNum++;
 	}
-	//fprintf(fp, "%d ", questionNum);
 	fclose(fp);
 
 	return SUCCESS;
 }
 
-double readUser(USER *user) {
+double readData(USER *user, BULLET *bullet, QUESTION *question) {
 	FILE *fp;
 	errno_t err;
+	QUESTION *head = NULL;
+	err = fopen_s(&fp, "Data/gameData.dat", "r");
 	double time;
-	err = fopen_s(&fp, "Data/gameData.dat", "r");
-	
-	fscanf_s(fp, "%s %d %lf", user->username, sizeof(user->username), &user->score, &time);
-	fclose(fp);
-	return time;
-}
-
-
-int readBullet(BULLET *bullet) {
-	FILE *fp;
-	errno_t err;
-	err = fopen_s(&fp, "Data/gameData.dat", "r");
-
+	fscanf_s(fp, "%s %d %d %lf ", user->username, 20, &user->score, &user->questionLeft, &time);
 	for (int i = 0; i < 4; i++) {
 		fscanf_s(fp, "%d %d %d ", &bullet->x, &bullet->y, &bullet->value);
 		bullet = bullet->next;
 	}
-	fclose(fp);
-
-	return SUCCESS;
-}
-
-int readQuestion(QUESTION *question) {
-	FILE *fp;
-	errno_t err;
-	err = fopen_s(&fp, "Data/gameData.dat", "r");
-	int i = 0;
-	while (question != NULL) {
-		i++;
+	for (int i = 0; i < user->questionLeft; i++) {
 		fscanf_s(fp, "%d %c %d ", &question->first, &question->sign, 1, &question->second);
-		fscanf_s(fp, "%d %d %d %d ", &question->animal->typeNumber, &question->animal->v, 
+		fscanf_s(fp, "%d %d %d %d ", &question->animal->typeNumber, &question->animal->v,
 			&question->animal->x, &question->animal->y);
 		question = question->next;
 	}
+	
 	fclose(fp);
-
-	return SUCCESS;
+	return time;
 }
 
-double readData(USER *user, BULLET *bhead, QUESTION *qhead) {
-	double timeLeft;
-	timeLeft = readUser(user);
-	readBullet(bhead);
-	readQuestion(qhead);
-
-	return timeLeft;
+int readQuestionNum(USER *user) {
+	FILE *fp;
+	errno_t err;
+	int score;
+	err = fopen_s(&fp, "Data/gameData.dat", "r");
+	fscanf_s(fp, "%s %d %d ", user->username, 20, &score, &user->questionLeft);
+	fclose(fp);
+	return user->questionLeft;
 }

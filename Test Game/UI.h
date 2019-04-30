@@ -55,6 +55,7 @@ typedef struct background {
 typedef struct user {
 	int score;
 	char username[20];
+	int questionLeft;
 }USER;
 
 int setBackground(BKGD *pointer);

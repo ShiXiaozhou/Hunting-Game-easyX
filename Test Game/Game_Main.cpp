@@ -10,7 +10,6 @@
 
 int main() {
 	USER user;
-	user.score = 0;
 	BKGD background;
 	IMAGE button[15];
 	MOUSEMSG Mouse;
@@ -61,6 +60,8 @@ int main() {
 		int pause = 0;
 		int pauseNum = 0;
 		int recordPage = 0;
+		int questionNum = 0;
+		int windowOption = 0;
 		int startShift = 0, shiftNum = 0;
 		double shift = 0, shiftSum = 0;
 
@@ -68,8 +69,9 @@ int main() {
 		initButton(button);
 		bullet = initBullet();
 		head = bullet;
-		question = createQuestion(10, bullet);
-		initAnimal(10, 1, question);
+		questionNum = readQuestionNum(&user);
+		question = createQuestion(questionNum, bullet);
+		initAnimal(questionNum, 1, question);
 		BeginBatchDraw();
 
 		//The Welcome Page
@@ -119,6 +121,7 @@ int main() {
 		if (MessageBox(GetHWnd(), "是否继续上次游戏进度？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
 			timeLeft = readData(&user, bullet, question);
 			modeLoop = 1;
+			windowOption++;
 		}
 		//choose mode
 		while (modeLoop == 0) {
@@ -128,14 +131,17 @@ int main() {
 				Mouse = GetMouseMsg();
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (Mouse.x >= 350 && Mouse.x <= 450 && Mouse.y >= 195 && Mouse.y <= 245) {
+						question = createQuestion(10, bullet);
 						initAnimal(10, 1, question);
 						timeLeft = 60;
 					}
 					else if (Mouse.x >= 320 && Mouse.x <= 483 && Mouse.y >= 275 && Mouse.y <= 325) {
+						question = createQuestion(10, bullet);
 						initAnimal(10, 2, question);
 						timeLeft = 45;
 					}
 					else if (Mouse.x >= 300 && Mouse.x <= 500 && Mouse.y >= 355 && Mouse.y <= 405) {
+						question = createQuestion(10, bullet);
 						initAnimal(10, 4, question);
 						timeLeft = 30;
 					}
@@ -151,14 +157,17 @@ int main() {
 		FlushBatchDraw();
 
 		displayBullet(bullet);
-		displayWindow(&user);
+		if (windowOption == 0) {
+			displayWindow(&user);
+			user.score = 0;
+		}
 		displayScore(&user);
 
 	//  main game loop
 		while (end == 0) {
 			int chooseNum = 0;	//time of choose question
 			int buttonType = -1;
-			int questionNum = -1;
+			int questionIndex = -1;
 			indexOfLoop++;
 			sprintf_s(s, "fps: %d", fps);
 
@@ -223,9 +232,9 @@ int main() {
 						mciSendString("open audio/shot.mp3 alias shotmusic", NULL, 0, NULL);
 						mciSendString("play shotmusic", NULL, 0, NULL);
 						displayBullet(bullet);
-						questionNum = checkQuestion(mouseX, mouseY, question);
-						if (questionNum != -1) {
-							result = computeResult(question, questionNum);
+						questionIndex = checkQuestion(mouseX, mouseY, question);
+						if (questionIndex != -1) {
+							result = computeResult(question, questionIndex);
 							//compare the answer with the result
 							qhead = question;
 							pointer = question;
@@ -233,15 +242,15 @@ int main() {
 								user.score += 10;
 								displayScore(&user);
 								//free the question from the linked list
-								if (questionNum == 0) {
+								if (questionIndex == 0) {
 									question = question->next;
 									free(qhead);
 								}
 								else {
-									for (int i = 0; i < questionNum; i++) {
+									for (int i = 0; i < questionIndex; i++) {
 										question = question->next;
 									}
-									for (int index = 0; index < questionNum - 1; index++) {
+									for (int index = 0; index < questionIndex - 1; index++) {
 										qhead = qhead->next;
 									}
 									qhead->next = question->next;
@@ -259,6 +268,7 @@ int main() {
 						}
 						setBullet = 0;
 						computeNum++;
+						user.questionLeft = 10 - computeNum;
 					}
 					else if (mouseX >= GAME_WIDTH && mouseX <= WIDTH && mouseY >= 0 && mouseY <= GAME_HEIGHT) {
 						//judge button
