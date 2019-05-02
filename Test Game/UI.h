@@ -5,17 +5,13 @@
 #define HEIGHT 600
 #define GAME_WIDTH 650
 #define GAME_HEIGHT 450
-
 #define ANIMAL_HEIGHT 120
 #define ANIMAL_WIDTH 160
 #define LINE_ONE 130
 #define LINE_TWO 290
-
 #define BULLET_GAP 163
 #define BULLET_HEIGHT 117
-
 #define BUTTON_GAP 100
-
 #define SUCCESS 0;
 #define FAIL -1;
 
@@ -65,9 +61,9 @@ int displayButton(IMAGE *button, BKGD *bk);
 int displayUsername(USER *head);
 int initButton(IMAGE *head);
 int displayScore(USER *user);
-void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r);
-void imageLoading(IMAGE *animal, IMAGE *animal_r);
+int displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r);
+int imageLoading(IMAGE *animal, IMAGE *animal_r);
 int displayBullet(BULLET *head);
 int displayQuestion(QUESTION *head);
-void drawTime(double sec);
+int drawTime(double sec);
 #endif

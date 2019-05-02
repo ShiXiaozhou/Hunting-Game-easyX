@@ -57,7 +57,6 @@ int drawRecordFile(USER *user) {
 		fscanf_s(fp, "%s %d\n", userData[i].username, sizeof(userData[i].username), &userData[i].score);
 	}
 	//print in the ranking page
-	LOGFONT f;
 	setbkmode(TRANSPARENT);
 	settextstyle(32, 0, _T("Comic Sans MS"));
 	settextcolor(WHITE);

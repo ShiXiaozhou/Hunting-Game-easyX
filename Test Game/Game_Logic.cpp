@@ -143,12 +143,13 @@ QUESTION *createQuestion(int numberOfQuestion, BULLET *bul) {
 	return head;
 }
 
-void moveAnimal(QUESTION *head) {
+int moveAnimal(QUESTION *head) {
 	QUESTION *pointer = head;
 	while (pointer != NULL) {
 		pointer->animal->x -= pointer->animal->v;
 		pointer = pointer->next;
 	}
+	return SUCCESS;
 }
 
 int checkButton(int mouseX, int mouseY) {
@@ -182,7 +183,7 @@ int checkBullet(int mouseX, int mouseY, BULLET *head) {
 	return -1;
 }
 
-void gameOver(QUESTION *head, BULLET *header, BKGD *pointer) {
+int gameOver(QUESTION *head, BULLET *header, BKGD *pointer) {
 	QUESTION *question = NULL;
 	BULLET *bullet = NULL;
 	while (head != NULL) {
@@ -201,15 +202,17 @@ void gameOver(QUESTION *head, BULLET *header, BKGD *pointer) {
 	}
 
 	free(pointer);
+	return SUCCESS;
 }
 
-void deleteAll(QUESTION *head) {
+int deleteAll(QUESTION *head) {
 	QUESTION *question = NULL;
 	while (head) {
 		question = head->next;
 		free(head);
 		head = question;
 	}
+	return SUCCESS;
 }
 
 int checkQuestion(int mouseX, int mouseY, QUESTION *head) {
@@ -252,7 +255,7 @@ int computeResult(QUESTION *question, int questionNum) {
 	return SUCCESS;
 }
 
-void checkBorder(QUESTION *question) {
+int checkBorder(QUESTION *question) {
 	QUESTION *pointer = question;
 	while (pointer != NULL) {
 		if (pointer->animal->x <= -ANIMAL_WIDTH) {
@@ -261,9 +264,10 @@ void checkBorder(QUESTION *question) {
 		pointer = pointer->next;
 	}
 	pointer = question;
+	return SUCCESS;
 }
 
-void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
+int initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
 	QUESTION *pointer = head;
 	for (int index = 0; index < indexOfQuestion; index++) {
 		pointer->animal = (ANIMAL *)malloc(sizeof(ANIMAL));
@@ -280,7 +284,7 @@ void initAnimal(int indexOfQuestion, int velocity, QUESTION *head) {
 
 		pointer = pointer->next;
 	}
-	
+	return SUCCESS;
 }
 
 QUESTION *copyList(QUESTION *h) {

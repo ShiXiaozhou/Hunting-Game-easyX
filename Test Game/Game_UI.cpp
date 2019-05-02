@@ -220,7 +220,7 @@ int displayBullet(BULLET *head) {
 	return SUCCESS;
 }
 
-void imageLoading(IMAGE *animal, IMAGE *animal_r) {
+int imageLoading(IMAGE *animal, IMAGE *animal_r) {
 	IMAGE panda, pig, frog, giraffe, tiger, hippo, monkey, lion, dog, cat;
 	IMAGE panda_r, pig_r, frog_r, giraffe_r, tiger_r, hippo_r, monkey_r, lion_r, dog_r, cat_r;
 	//载入动物图
@@ -267,9 +267,10 @@ void imageLoading(IMAGE *animal, IMAGE *animal_r) {
 	*(animal_r + 7) = lion_r;
 	*(animal_r + 8) = dog_r;
 	*(animal_r + 9) = cat_r;
+	return SUCCESS;
 }
 
-void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
+int displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
 	QUESTION *p = head;
 
 	while (p != NULL) {
@@ -317,9 +318,10 @@ void displayAnimal(QUESTION *head, IMAGE *animal, IMAGE *animal_r) {
 		}
 		p = p->next;
 	}
+	return SUCCESS;
 }
 
-void drawTime(double sec) {
+int drawTime(double sec) {
 	char str[30];
 	LOGFONT f;
 	setbkmode(TRANSPARENT);
@@ -332,5 +334,6 @@ void drawTime(double sec) {
 	settextcolor(WHITE);
 	sprintf_s(str, "Remaining Time：%2.lf s", sec);
 	outtextxy(15, 20, str);
+	return SUCCESS;
 }
 

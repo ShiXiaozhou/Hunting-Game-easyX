@@ -9,22 +9,24 @@
 #pragma comment(lib, "Winmm.lib")
 
 int main() {
+	//初始化变量
 	USER user;
 	BKGD background;
 	IMAGE button[15];
 	MOUSEMSG Mouse;
-	BULLET *bullet;
-	BULLET *head = NULL;
-	IMAGE help, modeChoose, ranking, gameOver;
-	IMAGE animal[10], animal_r[10];
-	clock_t start, finish;
-	clock_t startGame, finishGame;
-	IMAGE recover, continueBtn;
+	BULLET *bullet, *head = NULL;
+	IMAGE help, modeChoose, ranking, gameOver;	//用于储存各界面背景图片
+	IMAGE animal[10], animal_r[10];	//用于储存动物图片
+	clock_t start, finish;	//用于计算帧数
+	clock_t startGame, finishGame;	//用于显示游戏时间
+	IMAGE recoverBtn, continueBtn;
 	IMAGE startBtn_r, helpBtn_r, exitBtn_r, back;
 	QUESTION *question = NULL, *qhead = NULL, *pointer = NULL;
 	double duration, gameDuration, timeLeft;
 	srand((unsigned)time(NULL));
+	initgraph(WIDTH, HEIGHT);
 
+	//加载图片
 	setBackground(&background);
 	imageLoading(animal, animal_r);
 	loadimage(&help, "image/helpPage.jpg");
@@ -33,15 +35,16 @@ int main() {
 	loadimage(&helpBtn_r, "image/Help1.jpg");
 	loadimage(&exitBtn_r, "image/EXIT1.jpg");
 	loadimage(&back, "image/START2.jpg");
-	loadimage(&recover, "image/recovery.jpg");
+	loadimage(&recoverBtn, "image/recovery.jpg");
 	loadimage(&continueBtn, "image/CONTINUE_BUTTON.jpg");
 	loadimage(&gameOver, "image/gameOver.jpg");
 	loadimage(&ranking, "image/RankingPage.jpg");
-
+	//播放背景音乐
 	mciSendString("open audio/game_music.mp3 alias bkmusic", NULL, 0, NULL);
 	mciSendString("play bkmusic repeat", NULL, 0, NULL);
 
 	while (1) {
+		//初始化变量
 		char s[10];
 		int end = 0;
 		int fail = 0;
@@ -65,7 +68,6 @@ int main() {
 		int startShift = 0, shiftNum = 0;
 		double shift = 0, shiftSum = 0;
 
-		initgraph(WIDTH, HEIGHT);
 		initButton(button);
 		bullet = initBullet();
 		head = bullet;
@@ -74,7 +76,7 @@ int main() {
 		initAnimal(questionNum, 1, question);
 		BeginBatchDraw();
 
-		//The Welcome Page
+		//开始界面的循环
 		while (change == 0) {
 			background.indexOfBackground = 0;
 			displayBackground(&background);
@@ -117,13 +119,13 @@ int main() {
 				FlushBatchDraw();
 			}
 		}
-		//readData
+		//读取游戏状态
 		if (MessageBox(GetHWnd(), "是否继续上次游戏进度？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
 			timeLeft = readData(&user, bullet, question);
 			modeLoop = 1;
 			windowOption++;
 		}
-		//choose mode
+		//游戏模式选择
 		while (modeLoop == 0) {
 			putimage(0, 0, &modeChoose);
 			FlushBatchDraw();
@@ -149,7 +151,7 @@ int main() {
 				}
 			}
 		}
-		
+
 		start = clock();
 		startGame = clock();
 		background.indexOfBackground = 1;
@@ -162,16 +164,14 @@ int main() {
 			user.score = 0;
 		}
 		displayScore(&user);
-
-	//  main game loop
+		//游戏主流程函数
 		while (end == 0) {
-			int chooseNum = 0;	//time of choose question
+			int chooseNum = 0;	//作答题目的次数
 			int buttonType = -1;
 			int questionIndex = -1;
-			indexOfLoop++;
 			sprintf_s(s, "fps: %d", fps);
-
-			//refresh rate
+			indexOfLoop++;
+			//控制刷新频率
 			if (indexOfLoop % 7 == 0) {
 				finish = clock();
 				duration = (double)(finish - start) / CLOCKS_PER_SEC;
@@ -192,18 +192,18 @@ int main() {
 				}
 				displayButton(button, &background);
 				if (deleteAnimal == 1) {
-					//recover button
-					putimage(666, 260, &recover);
+					//恢复删除按钮
+					putimage(666, 260, &recoverBtn);
 				}
 				if (pause == 1) {
-					//continue button
+					//继续按钮
 					putimage(666, 160, &continueBtn);
 				}
 				displayUsername(&user);
 				outtextxy(700, 10, s);
 				innerLoop++;
 			}
-			//Time bar
+			//显示时间条
 			if (pause == 0) {
 				if (shiftNum != 0) {
 					shiftSum += clock();
@@ -223,7 +223,7 @@ int main() {
 				Mouse = GetMouseMsg();
 				int mouseX = Mouse.x;
 				int mouseY = Mouse.y;
-			//	solidcircle(mouseX, mouseY, 5);
+				//	solidcircle(mouseX, mouseY, 5);
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (setBullet != 0 && mouseX >= 0 && mouseX <= GAME_WIDTH &&
 						mouseY >= LINE_ONE && mouseY <= LINE_TWO + ANIMAL_HEIGHT) {
@@ -235,13 +235,13 @@ int main() {
 						questionIndex = checkQuestion(mouseX, mouseY, question);
 						if (questionIndex != -1) {
 							result = computeResult(question, questionIndex);
-							//compare the answer with the result
+							//比较子弹的答案与数学题答案
 							qhead = question;
 							pointer = question;
 							if (answer == result) {
 								user.score += 10;
 								displayScore(&user);
-								//free the question from the linked list
+								//删除作答正确的数学题
 								if (questionIndex == 0) {
 									question = question->next;
 									free(qhead);
@@ -271,10 +271,10 @@ int main() {
 						user.questionLeft = 10 - computeNum;
 					}
 					else if (mouseX >= GAME_WIDTH && mouseX <= WIDTH && mouseY >= 0 && mouseY <= GAME_HEIGHT) {
-						//judge button
+						//判断按钮
 						buttonType = checkButton(mouseX, mouseY);
 						if (buttonType == 1) {
-							//do PAUSE
+							//暂停
 							if (pauseNum == 1) {
 								pause = 0;
 								pauseNum = 0;
@@ -286,7 +286,7 @@ int main() {
 							}
 						}
 						else if (buttonType == 2) {
-						//  do Clear
+							//删除全部数学题
 							if (deleteNum == 1) {
 								question = pointer;
 								deleteNum = 0;
@@ -297,23 +297,23 @@ int main() {
 								deleteAnimal = 1;
 								deleteNum++;
 							}
-							
+
 						}
 						else if (buttonType == 3) {
-							//do EXIT
-							if (MessageBox(GetHWnd(), "是否保存游戏数据？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
+							//退出游戏前可选是否存档
+							if (MessageBox(GetHWnd(), "是否保存此次游戏数据？", "提示", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDOK) {
 								writeData(&user, timeLeft - gameDuration, bullet, question);
 							}
 							return 0;
 						}
 					}
 					else if (mouseX >= 0 && mouseX <= GAME_WIDTH && mouseY >= GAME_HEIGHT && mouseY <= HEIGHT) {
-						//judge bullet
+						//点击音效
 						mciSendString("stop clickmusic", NULL, 0, NULL);
 						mciSendString("close clickmusic", NULL, 0, NULL);
 						mciSendString("open audio/click.mp3 alias clickmusic", NULL, 0, NULL);
 						mciSendString("play clickmusic", NULL, 0, NULL);
-
+						//判断子弹
 						displayBullet(bullet);
 						int bulletType = checkBullet(mouseX, mouseY, bullet);
 						if (bulletType != -1) {
@@ -321,7 +321,7 @@ int main() {
 								bullet = bullet->next;
 							}
 							answer = bullet->value;
-							//change the bullet number color
+							//选中后改变子弹颜色
 							sprintf_s(s, "%d", bullet->value);
 							setfillcolor(RED);
 							solidcircle(bullet->x + BULLET_GAP / 2, bullet->y + BULLET_HEIGHT / 2, 20);
@@ -334,7 +334,6 @@ int main() {
 					}
 				}
 			}
-
 			if (_kbhit()) {
 				int index = _getch();
 				if (index >= 49 && index <= 52) {
@@ -352,7 +351,7 @@ int main() {
 					setBullet++;
 				}
 			}
-			//judge game condition
+			//判断游戏状态
 			if (timeLeft - gameDuration < 0) {
 				fail++;
 				end++;
@@ -368,12 +367,12 @@ int main() {
 		}
 		writeRecordFile(&user);
 
-	//	End Page
+		//游戏结束页面
 		while (end == 2 || fail == 1) {
 			if (end == 2) {
 				background.indexOfBackground = 2;
 				displayBackground(&background);
-			} 
+			}
 			if (fail == 1) {
 				putimage(0, 0, &gameOver);
 			}
@@ -382,19 +381,20 @@ int main() {
 				Mouse = GetMouseMsg();
 				if (Mouse.uMsg == WM_LBUTTONDOWN) {
 					if (Mouse.x >= 310 && Mouse.x <= 490 && Mouse.y >= 270 && Mouse.y <= 310) {
-						//area of restart
+						//重新开始按钮
 						end = 0;
 						fail = 0;
 					}
 					else if (Mouse.x >= 310 && Mouse.x <= 490 && Mouse.y >= 360 && Mouse.y <= 400) {
-						//area of ranking
+						//排行榜按钮
 						recordPage = 1;
 					}
 					else if (Mouse.x >= 310 && Mouse.x <= 490 && Mouse.y >= 450 && Mouse.y <= 490) {
-					//	gameOver(question, bullet, &background);
+						//游戏结束按钮
 						return 0;
 					}
 					else if (Mouse.x >= 760 && Mouse.x < 800 && Mouse.y >= 0 && Mouse.y <= 40) {
+						//关闭排行榜按钮
 						recordPage = 0;
 					}
 				}
